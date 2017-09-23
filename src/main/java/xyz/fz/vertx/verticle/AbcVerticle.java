@@ -3,14 +3,14 @@ package xyz.fz.vertx.verticle;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import xyz.fz.vertx.Application;
 import xyz.fz.vertx.service.AbcService;
+import xyz.fz.vertx.util.SpringContextHelper;
 
 public class AbcVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-        AbcService abcService = (AbcService) Application.springContext.getBean("abcServiceImpl");
+        AbcService abcService = SpringContextHelper.getBean("abcServiceImpl", AbcService.class);
 
         EventBus eventBus = vertx.eventBus();
         eventBus.consumer("abcAddress", msg -> {

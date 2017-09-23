@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
-import xyz.fz.vertx.Application;
+import xyz.fz.vertx.util.BaseUtil;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -19,7 +19,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             response.putHeader("content-type", "application/json");
             vertx.eventBus().send("abcAddress", something, ar -> {
                 if (ar.succeeded()) {
-                    response.end(Application.toJson(ar.result().body()));
+                    response.end(BaseUtil.toJson(ar.result().body()));
                 } else {
                     response.end(ar.cause().getMessage());
                 }
