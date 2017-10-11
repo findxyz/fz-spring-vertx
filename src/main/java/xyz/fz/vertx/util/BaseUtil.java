@@ -13,7 +13,7 @@ public class BaseUtil {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            return "json serial error";
+            return "{\"success\": false, \"message\": \"json serial error\"}";
         }
     }
 

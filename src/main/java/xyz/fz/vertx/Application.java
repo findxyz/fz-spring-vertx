@@ -2,11 +2,15 @@ package xyz.fz.vertx;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
 
 public class Application {
+
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     private static final String SCAN_PACKAGES = "xyz.fz.vertx";
 
@@ -17,9 +21,10 @@ public class Application {
         annotationConfigApplicationContext.refresh();
 
         Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(HttpServerVerticle.class.getName());
+
         DeploymentOptions deploymentOptions = new DeploymentOptions();
         vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions);
-        System.out.println("vertx httpServer started");
+
+        vertx.deployVerticle(HttpServerVerticle.class.getName());
     }
 }
