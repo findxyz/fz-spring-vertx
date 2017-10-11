@@ -2,15 +2,11 @@ package xyz.fz.vertx;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
 
 public class Application {
-
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     private static final String SCAN_PACKAGES = "xyz.fz.vertx";
 
