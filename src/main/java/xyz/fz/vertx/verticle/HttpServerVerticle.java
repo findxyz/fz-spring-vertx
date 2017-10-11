@@ -1,6 +1,7 @@
 package xyz.fz.vertx.verticle;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import xyz.fz.vertx.model.Result;
+import xyz.fz.vertx.util.BaseUtil;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -30,6 +32,12 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start() {
         HttpServer httpServer = vertx.createHttpServer();
         Router router = Router.router(vertx);
+
+        router.route().failureHandler(routingContext -> {
+            Throwable failure = routingContext.failure();
+            logger.error(BaseUtil.getExceptionStackTrace(failure));
+            routingContext.response().end(Result.ofMessage(failure.getMessage()));
+        });
 
         router.route("/*").handler(routingContext -> {
             logger.debug("/* filter");
@@ -58,9 +66,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.route("/abc/json").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
             routingContext.request().bodyHandler(event -> {
-                String requestJson = event.toString();
-                JsonObject requestMap = new JsonObject(requestJson);
-                vertx.eventBus().send("abcJson", requestMap, ar -> {
+                vertx.eventBus().send("abcJson", convert2JsonObject(event, response), ar -> {
                     if (ar.succeeded()) {
                         JsonObject result = (JsonObject) ar.result().body();
                         response.end(Result.ofData(result.getMap()));
@@ -76,6 +82,16 @@ public class HttpServerVerticle extends AbstractVerticle {
         httpServer.requestHandler(router::accept).listen(Integer.parseInt(serverPort));
 
         logger.info("vertx httpServer started at port:{}", serverPort);
+    }
+
+    private JsonObject convert2JsonObject(Buffer event, HttpServerResponse response) {
+        try {
+            String requestJson = event.toString();
+            return new JsonObject(requestJson);
+        } catch (Exception e) {
+            response.end(Result.ofMessage(e.getMessage()));
+            throw e;
+        }
     }
 
 }
