@@ -17,6 +17,6 @@ public class SpringContextHelper implements ApplicationContextAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String beanName, Class<T> clazz) {
-        return (T) context.getBean(beanName);
+        return (T) context.getBean(beanName, clazz);
     }
 }
