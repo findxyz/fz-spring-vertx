@@ -7,7 +7,11 @@ import io.vertx.core.json.JsonObject;
 import xyz.fz.vertx.service.AbcService;
 import xyz.fz.vertx.util.SpringContextHelper;
 
+import java.util.UUID;
+
 public class AbcVerticle extends AbstractVerticle {
+
+    private static final String ID = UUID.randomUUID().toString();
 
     @Override
     public void start() {
@@ -16,7 +20,7 @@ public class AbcVerticle extends AbstractVerticle {
         EventBus eventBus = vertx.eventBus();
         eventBus.consumer("abcAddress", msg -> {
             try {
-                msg.reply(abcService.hello(msg.body().toString()));
+                msg.reply(abcService.hello(msg.body().toString() + ID));
             } catch (Exception e) {
                 msg.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code(), "error: " + e.getMessage());
             }

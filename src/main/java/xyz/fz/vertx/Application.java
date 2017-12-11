@@ -21,6 +21,11 @@ public class Application {
 
     public static void main(String[] args) {
 
+        if (args.length <= 0) {
+            System.out.println("缺少vertx.cluster.host参数");
+            System.exit(0);
+        }
+
         AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
         annotationConfigApplicationContext.scan(SCAN_PACKAGES);
         annotationConfigApplicationContext.refresh();
@@ -34,7 +39,10 @@ public class Application {
         cfg.setGroupConfig(group);
         // 声明集群管理器
         ClusterManager mgr = new HazelcastClusterManager(cfg);
-        VertxOptions options = new VertxOptions().setClusterManager(mgr);
+        String clusterHost = args[0];
+        VertxOptions options = new VertxOptions()
+                .setClusterManager(mgr)
+                .setClusterHost(clusterHost);
         // 集群化vertx
         Vertx.clusteredVertx(options, Application::resultHandler);
     }
