@@ -3,6 +3,7 @@ package xyz.fz.vertx;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
@@ -77,7 +78,9 @@ public class Application {
     }
 
     private static void deploy(Vertx vertx) {
-        vertx.deployVerticle(AbcVerticle.class.getName());
+        DeploymentOptions deploymentOptions = new DeploymentOptions();
+        deploymentOptions.setWorker(true);
+        vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions);
         vertx.deployVerticle(HttpServerVerticle.class.getName());
     }
 }
