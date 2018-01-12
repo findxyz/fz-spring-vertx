@@ -3,27 +3,43 @@ package xyz.fz.vertx;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import xyz.fz.vertx.util.BaseProperties;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 public class Application {
 
-    private static final String SCAN_PACKAGES = "xyz.fz.vertx";
+    static {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+        Logger.getLogger("global").setLevel(Level.FINEST);
+    }
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
+
+    private static final String SCAN_PACKAGES = BaseProperties.get("spring.scan.packages");
+
+    private static String VERTX_CLUSTER_HOST = BaseProperties.get("vertx.cluster.host");
 
     // 集群初始化失败的情况下，可以使用默认vertx实例
     private static Vertx vertx = Vertx.vertx();
 
     public static void main(String[] args) {
 
-        if (args.length <= 0) {
-            System.out.println("缺少vertx.cluster.host参数");
-            System.exit(0);
+        if (args.length > 0) {
+            VERTX_CLUSTER_HOST = args[0];
         }
 
         AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
@@ -34,12 +50,12 @@ public class Application {
         Config cfg = new Config();
         // 加入组的配置，防止广播环境下，负载串到别的开发机中
         GroupConfig group = new GroupConfig();
-        group.setName("vertxGroup");
-        group.setPassword("vertxGroupPassword");
+        group.setName(BaseProperties.get("vertx.group.name"));
+        group.setPassword(BaseProperties.get("vertx.group.password"));
         cfg.setGroupConfig(group);
         // 声明集群管理器
         ClusterManager mgr = new HazelcastClusterManager(cfg);
-        String clusterHost = args[0];
+        String clusterHost = VERTX_CLUSTER_HOST;
         VertxOptions options = new VertxOptions()
                 .setClusterManager(mgr)
                 .setClusterHost(clusterHost);
@@ -55,16 +71,13 @@ public class Application {
             // 由于vert.x所有内部逻辑都是异步调用的，所以，如果你在异步回调前就去部署模块，最终会导致集群失败
             deploy(vertx);
         } else {
-            System.out.println("cluster failed, using default vertx");
+            logger.error("cluster failed, using default vertx");
             deploy(vertx);
         }
     }
 
     private static void deploy(Vertx vertx) {
-
-        DeploymentOptions deploymentOptions = new DeploymentOptions();
-        vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions);
-
+        vertx.deployVerticle(AbcVerticle.class.getName());
         vertx.deployVerticle(HttpServerVerticle.class.getName());
     }
 }

@@ -13,12 +13,16 @@ public class AbcVerticle extends AbstractVerticle {
 
     private static final String ID = UUID.randomUUID().toString();
 
+    static final String ABC_ADDRESS = "abcAddress";
+
+    static final String ABC_ADDRESS_JSON = "abcAddressJson";
+
     @Override
     public void start() {
         AbcService abcService = SpringContextHelper.getBean("abcServiceImpl", AbcService.class);
 
         EventBus eventBus = vertx.eventBus();
-        eventBus.consumer("abcAddress", msg -> {
+        eventBus.consumer(ABC_ADDRESS, msg -> {
             try {
                 msg.reply(abcService.hello(msg.body().toString() + ID));
             } catch (Exception e) {
@@ -26,7 +30,7 @@ public class AbcVerticle extends AbstractVerticle {
             }
         });
 
-        eventBus.consumer("abcJson", msg -> {
+        eventBus.consumer(ABC_ADDRESS_JSON, msg -> {
             try {
                 JsonObject requestMap = (JsonObject) msg.body();
                 msg.reply(requestMap);
