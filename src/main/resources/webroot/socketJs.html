@@ -8,9 +8,10 @@
     <script src="/pubs/js/vertx-eventbus.js"></script>
 </head>
 <body>
+<div>消息通知</div>
 <div id="message"></div>
 <script>
-    var sock = new SockJS('http://192.168.1.21:3333/socketMessage');
+    var sock = new SockJS('http://localhost:3333/socketMessage');
     sock.onmessage = function (e) {
         if (window.Notification && Notification.permission !== "denied") {
             // 请求权限
@@ -19,7 +20,8 @@
                     // 弹出一个通知
                     var n = new Notification('消息通知', {
                         body: e.data,
-                        url: "https://baidu.com"
+                        url: "https://baidu.com",
+                        icon: "http://localhost:7777/pubs/img/messages_72px_1190283_easyicon.net.ico"
                     });
                     n.onclick = function (event) {
                         // prevent the browser from focusing the Notification's tab
