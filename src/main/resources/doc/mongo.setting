@@ -1,0 +1,27 @@
+1. mongod
+2. mongo
+3. use admin
+4.
+    db.createUser({
+        user: "myUserAdmin",
+        pwd: "abc123",
+        roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+    })
+5. mongod --auth
+6. mongo
+7. use admin
+8. db.auth("myUserAdmin", "abc123")
+9. use test
+10.
+    db.createUser({
+        user: "myTester",
+        pwd: "xyz123",
+        roles: [ { role: "readWrite", db: "test" } ]
+    })
+11.mongo --port 27017 -u "myTester" -p "xyz123" --authenticationDatabase "test"
+12.
+    db.createCollection("messages", {
+        capped: true,
+        size: 2048000000,
+        max: 100000
+    })

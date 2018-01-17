@@ -27,6 +27,10 @@ public class BaseUtil {
         }
     }
 
+    public static String errorFormat(String errorMsg) {
+        return "error: " + errorMsg;
+    }
+
     public static String getExceptionStackTrace(Throwable e) {
 
         StringWriter sw = null;

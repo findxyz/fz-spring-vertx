@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>socketJs</title>
+    <meta charset="utf-8"/>
+    <script src="/pubs/js/jquery-1.11.2.min.js"></script>
+    <script src="/pubs/js/sockjs.min.js"></script>
+    <script src="/pubs/js/vertx-eventbus.js"></script>
+</head>
+<body>
+<div id="message"></div>
+<script>
+    var sock = new SockJS('http://192.168.1.21:3333/socketMessage');
+    sock.onmessage = function (e) {
+        if (window.Notification && Notification.permission !== "denied") {
+            // 请求权限
+            Notification.requestPermission(function (status) {
+                if (status === 'granted') {
+                    // 弹出一个通知
+                    var n = new Notification('消息通知', {
+                        body: e.data,
+                        url: "https://baidu.com"
+                    });
+                    n.onclick = function (event) {
+                        // prevent the browser from focusing the Notification's tab
+                        event.preventDefault();
+                        window.open('http://www.mozilla.org', '_blank');
+                        n.close();
+                    };
+                    setTimeout(function () {
+                        n.close();
+                    }, 10000);
+                }
+            });
+        }
+        var msg = "<div>" + e.data + "</div>";
+        $('#message').prepend(msg);
+    };
+</script>
+</body>
+</html>

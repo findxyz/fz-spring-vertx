@@ -14,6 +14,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import xyz.fz.vertx.util.BaseProperties;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
+import xyz.fz.vertx.verticle.MongoVerticle;
+import xyz.fz.vertx.verticle.RxSocketJsVerticle;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -78,9 +80,16 @@ public class Application {
     }
 
     private static void deploy(Vertx vertx) {
-        DeploymentOptions deploymentOptions = new DeploymentOptions();
-        deploymentOptions.setWorker(true);
-        vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions);
+        // 部署想要部署的verticle
+        // 需要先启动 mongodb 服务
+        DeploymentOptions deploymentOptions = new DeploymentOptions().setInstances(8).setWorker(true);
+        vertx.deployVerticle(MongoVerticle.class.getName(), deploymentOptions);
+
+        DeploymentOptions deploymentOptions2 = new DeploymentOptions().setWorker(true);
+        vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions2);
+
         vertx.deployVerticle(HttpServerVerticle.class.getName());
+
+        vertx.deployVerticle(RxSocketJsVerticle.class.getName());
     }
 }

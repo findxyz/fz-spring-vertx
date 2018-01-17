@@ -3,7 +3,9 @@ package xyz.fz.vertx.verticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.fz.vertx.model.Result;
@@ -13,6 +15,9 @@ import xyz.fz.vertx.util.EventBusUtil;
 
 import static xyz.fz.vertx.verticle.AbcVerticle.ABC_ADDRESS;
 import static xyz.fz.vertx.verticle.AbcVerticle.ABC_ADDRESS_JSON;
+import static xyz.fz.vertx.verticle.MongoVerticle.MONGO_ADDRESS_FIND;
+import static xyz.fz.vertx.verticle.MongoVerticle.MONGO_ADDRESS_SAVE;
+import static xyz.fz.vertx.verticle.RxSocketJsVerticle.SOCKET_MESSAGE_ADDRESS;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -22,6 +27,8 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start() {
         HttpServer httpServer = vertx.createHttpServer();
         Router router = Router.router(vertx);
+
+        router.route("/pubs/*").handler(StaticHandler.create());
 
         router.route().failureHandler(routingContext -> {
             Throwable failure = routingContext.failure();
@@ -53,6 +60,32 @@ public class HttpServerVerticle extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             routingContext.request().bodyHandler(event -> {
                 EventBusUtil.eventBusSend(vertx, ABC_ADDRESS_JSON, event, response);
+            });
+        });
+
+        router.route("/mongo/save").handler(routingContext -> {
+            HttpServerResponse response = routingContext.response();
+            routingContext.request().bodyHandler(event -> {
+                EventBusUtil.eventBusSend(vertx, MONGO_ADDRESS_SAVE, event, response);
+            });
+        });
+
+        router.route("/mongo/find").handler(routingContext -> {
+            HttpServerResponse response = routingContext.response();
+            EventBusUtil.eventBusSend(vertx, MONGO_ADDRESS_FIND, "", response);
+        });
+
+        router.route("/pushSocketMessage").handler(routingContext -> {
+            routingContext.request().bodyHandler(buffer -> {
+                String requestJson = buffer.toString();
+                try {
+                    JsonObject requestMap = new JsonObject(requestJson);
+                    vertx.eventBus().publish(SOCKET_MESSAGE_ADDRESS, requestMap.getString("message"));
+                } catch (Exception e) {
+                    routingContext.response().end(Result.ofMessage(null));
+                    return;
+                }
+                routingContext.response().end(Result.ofSuccess());
             });
         });
 
