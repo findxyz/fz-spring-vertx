@@ -3,7 +3,6 @@ package xyz.fz.vertx;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
@@ -80,16 +79,15 @@ public class Application {
     }
 
     private static void deploy(Vertx vertx) {
-        // 部署想要部署的verticle
-        // 需要先启动 mongodb 服务
-        DeploymentOptions deploymentOptions = new DeploymentOptions().setInstances(8).setWorker(true);
-        vertx.deployVerticle(MongoVerticle.class.getName(), deploymentOptions);
+        /* deploy needed verticles begin */
+        // need mongodb service first
+        vertx.deployVerticle(MongoVerticle.class.getName());
 
-        DeploymentOptions deploymentOptions2 = new DeploymentOptions().setWorker(true);
-        vertx.deployVerticle(AbcVerticle.class.getName(), deploymentOptions2);
+        vertx.deployVerticle(AbcVerticle.class.getName());
 
         vertx.deployVerticle(HttpServerVerticle.class.getName());
 
         vertx.deployVerticle(RxSocketJsVerticle.class.getName());
+        /* deploy needed verticles end */
     }
 }
