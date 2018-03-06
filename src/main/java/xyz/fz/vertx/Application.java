@@ -13,8 +13,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import xyz.fz.vertx.util.BaseProperties;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
-import xyz.fz.vertx.verticle.MongoVerticle;
-import xyz.fz.vertx.verticle.RxSocketJsVerticle;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -29,7 +27,7 @@ public class Application {
         Logger.getLogger("global").setLevel(Level.FINEST);
     }
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     private static final String SCAN_PACKAGES = BaseProperties.get("spring.scan.packages");
 
@@ -73,7 +71,7 @@ public class Application {
             // 由于vert.x所有内部逻辑都是异步调用的，所以，如果你在异步回调前就去部署模块，最终会导致集群失败
             deploy(vertx);
         } else {
-            logger.error("cluster failed, using default vertx");
+            LOGGER.error("cluster failed, using default vertx");
             deploy(vertx);
         }
     }
@@ -81,13 +79,13 @@ public class Application {
     private static void deploy(Vertx vertx) {
         /* deploy needed verticles begin */
         // need mongodb service first
-        vertx.deployVerticle(MongoVerticle.class.getName());
+        // vertx.deployVerticle(MongoVerticle.class.getName());
 
         vertx.deployVerticle(AbcVerticle.class.getName());
 
         vertx.deployVerticle(HttpServerVerticle.class.getName());
 
-        vertx.deployVerticle(RxSocketJsVerticle.class.getName());
+        // vertx.deployVerticle(RxSocketJsVerticle.class.getName());
         /* deploy needed verticles end */
     }
 }

@@ -1,6 +1,7 @@
 package xyz.fz.vertx.verticle;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.FindOptions;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import xyz.fz.vertx.util.BaseProperties;
 import xyz.fz.vertx.util.BaseUtil;
 
-public class MongoVerticle extends AbcVerticle {
+public class MongoVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(MongoVerticle.class);
 
