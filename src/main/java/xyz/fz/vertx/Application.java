@@ -13,6 +13,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import xyz.fz.vertx.util.BaseProperties;
 import xyz.fz.vertx.verticle.AbcVerticle;
 import xyz.fz.vertx.verticle.HttpServerVerticle;
+import xyz.fz.vertx.verticle.TcpClientVerticle;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -84,6 +85,8 @@ public class Application {
         vertx.deployVerticle(AbcVerticle.class.getName());
 
         vertx.deployVerticle(HttpServerVerticle.class.getName());
+
+        vertx.deployVerticle(TcpClientVerticle.class.getName());
 
         // vertx.deployVerticle(RxSocketJsVerticle.class.getName());
         /* deploy needed verticles end */
