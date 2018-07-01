@@ -5,7 +5,11 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.sstore.ClusteredSessionStore;
+import io.vertx.ext.web.sstore.SessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.fz.vertx.model.Result;
@@ -28,6 +32,17 @@ public class HttpServerVerticle extends AbstractVerticle {
         HttpServer httpServer = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
+        // We need a cookie handler first
+        router.route().handler(CookieHandler.create());
+
+        // Create a clustered session store using defaults
+        SessionStore store = ClusteredSessionStore.create(vertx);
+
+        SessionHandler sessionHandler = SessionHandler.create(store);
+
+        // Make sure all requests are routed through the session handler too
+        router.route().handler(sessionHandler);
+
         router.route("/pubs/*").handler(StaticHandler.create());
 
         router.route().failureHandler(routingContext -> {
@@ -38,17 +53,18 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         // filter
         router.route("/*").handler(routingContext -> {
+            logger.debug("/* filter");
             HttpServerResponse response = routingContext.response();
             response.putHeader("content-type", "application/json");
             routingContext.next();
         });
 
-        /*
         router.route("/abc/*").handler(routingContext -> {
             logger.debug("/abc/* filter");
+            HttpServerResponse response = routingContext.response();
+            response.putHeader("content-type", "text/html");
             routingContext.next();
         });
-        */
 
         router.route("/abc").handler(routingContext -> {
             String name = routingContext.request().getParam("name");
