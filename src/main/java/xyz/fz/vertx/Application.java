@@ -34,7 +34,9 @@ public class Application {
 
     private static String VERTX_CLUSTER_HOST = BaseProperties.get("vertx.cluster.host");
 
-    // 集群初始化失败的情况下，可以使用默认vertx实例
+    /**
+     * 集群初始化失败的情况下，可以使用默认vertx实例
+     */
     private static Vertx vertx = Vertx.vertx();
 
     public static void main(String[] args) {
